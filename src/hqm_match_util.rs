@@ -385,6 +385,7 @@ impl HQMMatch {
         player: HQMObjectIndex,
         puck_index: HQMObjectIndex,
     ) {
+        server.world.physics_config.shift_enabled = true;
         if let Some((player_index, touching_team, _)) = server.players.get_from_object_index(player)
         {
             if let Some(puck) = server.world.objects.get_puck_mut(puck_index) {
