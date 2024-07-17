@@ -268,7 +268,7 @@ fn update_stick(
 
     let placement_diff = stick_input - &player.stick_placement;
     let placement_change = 0.0625 * placement_diff - 0.5 * player.stick_placement_delta;
-    let placement_change = limit_vector_length2(&placement_change, 0.010);
+    // let placement_change = limit_vector_length2(&placement_change, 0.010);
 
     player.stick_placement_delta += placement_change;
     player.stick_placement += &player.stick_placement_delta;
@@ -870,6 +870,7 @@ fn do_puck_stick_forces(
             if puck_force.dot(&normal) > 0.0 {
                 limit_friction(&mut puck_force, &normal, 0.5);
                 player.stick_velocity -= 0.25 * puck_force;
+
                 puck_force *= 0.75;
                 apply_acceleration_to_object(&mut puck.body, &puck_force, &puck_vertex);
             }
@@ -1107,6 +1108,7 @@ fn collision_between_vertex_and_rink(
 fn apply_acceleration_to_object(body: &mut HQMBody, change: &Vector3<f32>, point: &Point3<f32>) {
     let diff1 = point - body.pos;
     body.linear_velocity += change;
+    body.linear_velocity = limit_vector_length(&body.linear_velocity, 0.5);
     let cross = change.cross(&diff1);
     body.angular_velocity += body.rot * (body.rot.transpose() * cross).component_mul(&body.rot_mul);
 }
