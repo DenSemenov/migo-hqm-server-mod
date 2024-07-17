@@ -346,10 +346,26 @@ impl HQMServerBehaviour for HQMMatchBehaviour {
                             if let Ok(rule) = args[1].parse::<f32>() {
                                 self.m.set_spawn_puck_altitude(server, player_index, rule);
                             }
-                        },
+                        }
                         "spawnplayerkeepstick" => {
                             if let Some(arg) = args.get(1) {
                                 self.m.set_spawn_keep_stick(server, player_index, arg);
+                            }
+                        }
+                        "limit" => {
+                            if let Ok(rule) = args[1].parse::<f32>() {
+                                server.world.physics_config.puck_limit = rule;
+
+                                let msg = format!("Puck limit changed to {}", rule);
+                                server.messages.add_server_chat_message(msg);
+                            }
+                        }
+                        "force" => {
+                            if let Ok(rule) = args[1].parse::<f32>() {
+                                server.world.physics_config.puck_force = rule;
+
+                                let msg = format!("Puck force changed to {}", rule);
+                                server.messages.add_server_chat_message(msg);
                             }
                         }
                         _ => {}
@@ -406,6 +422,7 @@ impl HQMServerBehaviour for HQMMatchBehaviour {
                     }
                 }
             }
+
             _ => {}
         };
     }

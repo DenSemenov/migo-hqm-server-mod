@@ -169,6 +169,8 @@ pub struct HQMPhysicsConfiguration {
     pub max_player_shift_speed: f32,
     pub player_shift_turning: f32,
     pub shift_enabled: bool,
+    pub puck_limit: f32,
+    pub puck_force: f32,
 }
 impl Default for HQMGameValues {
     fn default() -> Self {

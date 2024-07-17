@@ -189,6 +189,7 @@ fn update_sticks_and_pucks(
                     &puck_linear_velocity_before,
                     &puck_angular_velocity_before,
                     physics_config.puck_rink_friction,
+                    &physics_config,
                 );
             }
             for (player_index, player) in players.iter_mut() {
@@ -202,6 +203,7 @@ fn update_sticks_and_pucks(
                         &puck_linear_velocity_before,
                         &puck_angular_velocity_before,
                         &old_stick_velocity,
+                        physics_config,
                     );
                     if has_touched {
                         events.push(HQMSimulationEvent::PuckTouch {
@@ -216,12 +218,14 @@ fn update_sticks_and_pucks(
                 &rink.red_net,
                 &puck_linear_velocity_before,
                 &puck_angular_velocity_before,
+                physics_config,
             );
             let blue_net_collision = do_puck_post_forces(
                 puck,
                 &rink.blue_net,
                 &puck_linear_velocity_before,
                 &puck_angular_velocity_before,
+                physics_config,
             );
 
             let red_net_collision = red_net_collision
@@ -230,6 +234,7 @@ fn update_sticks_and_pucks(
                     &rink.red_net,
                     &puck_linear_velocity_before,
                     &puck_angular_velocity_before,
+                    physics_config,
                 );
             let blue_net_collision = blue_net_collision
                 | do_puck_net_forces(
@@ -237,6 +242,7 @@ fn update_sticks_and_pucks(
                     &rink.blue_net,
                     &puck_linear_velocity_before,
                     &puck_angular_velocity_before,
+                    physics_config,
                 );
 
             if red_net_collision {
@@ -260,6 +266,7 @@ fn update_stick(
     linear_velocity_before: &Vector3<f32>,
     angular_velocity_before: &Vector3<f32>,
     rink: &HQMRink,
+    physics_config: &HQMPhysicsConfiguration,
 ) {
     let stick_input = Vector2::new(
         replace_nan(player.input.stick[0], 0.0).clamp(-FRAC_PI_2, FRAC_PI_2),
@@ -354,6 +361,7 @@ fn update_stick(
         &mut player.body,
         &(-0.004 * stick_force),
         &intended_stick_position,
+        physics_config,
     );
 
     if let Some((overlap, normal)) =
@@ -492,6 +500,7 @@ fn update_player(
             &mut player.body,
             &((0.9375 - 1.0) * force),
             &intended_collision_ball_pos,
+            physics_config,
         );
     }
 
@@ -570,6 +579,7 @@ fn update_player(
         &linear_velocity_before,
         &angular_velocity_before,
         rink,
+        physics_config,
     );
 }
 
@@ -790,6 +800,7 @@ fn do_puck_net_forces(
     net: &HQMRinkNet,
     puck_linear_velocity: &Vector3<f32>,
     puck_angular_velocity: &Vector3<f32>,
+    physics_config: &HQMPhysicsConfiguration,
 ) -> bool {
     let mut res = false;
     if let Some((overlap_pos, overlap, normal)) =
@@ -806,7 +817,7 @@ fn do_puck_net_forces(
 
         if normal.dot(&puck_force) > 0.0 {
             limit_friction(&mut puck_force, &normal, 0.5);
-            apply_acceleration_to_object(&mut puck.body, &puck_force, &overlap_pos);
+            apply_acceleration_to_object(&mut puck.body, &puck_force, &overlap_pos, physics_config);
             puck.body.linear_velocity *= 0.9875;
             puck.body.angular_velocity *= 0.95;
         }
@@ -819,6 +830,7 @@ fn do_puck_post_forces(
     net: &HQMRinkNet,
     puck_linear_velocity: &Vector3<f32>,
     puck_angular_velocity: &Vector3<f32>,
+    physics_config: &HQMPhysicsConfiguration,
 ) -> bool {
     let mut res = false;
     for post in net.posts.iter() {
@@ -836,7 +848,7 @@ fn do_puck_post_forces(
 
             if normal.dot(&puck_force) > 0.0 {
                 limit_friction(&mut puck_force, &normal, 0.2);
-                apply_acceleration_to_object(&mut puck.body, &puck_force, &p);
+                apply_acceleration_to_object(&mut puck.body, &puck_force, &p, physics_config);
             }
         }
     }
@@ -850,6 +862,7 @@ fn do_puck_stick_forces(
     puck_linear_velocity: &Vector3<f32>,
     puck_angular_velocity: &Vector3<f32>,
     stick_velocity: &Vector3<f32>,
+    physics_config: &HQMPhysicsConfiguration,
 ) -> bool {
     let stick_surfaces = get_stick_surfaces(player);
     let mut res = false;
@@ -872,7 +885,12 @@ fn do_puck_stick_forces(
                 player.stick_velocity -= 0.25 * puck_force;
 
                 puck_force *= 0.75;
-                apply_acceleration_to_object(&mut puck.body, &puck_force, &puck_vertex);
+                apply_acceleration_to_object(
+                    &mut puck.body,
+                    &puck_force,
+                    &puck_vertex,
+                    physics_config,
+                );
             }
         }
     }
@@ -886,6 +904,7 @@ fn do_puck_rink_forces(
     puck_linear_velocity: &Vector3<f32>,
     puck_angular_velocity: &Vector3<f32>,
     friction: f32,
+    physics_config: &HQMPhysicsConfiguration,
 ) {
     for vertex in puck_vertices.iter() {
         let c = collision_between_vertex_and_rink(vertex, rink);
@@ -900,7 +919,7 @@ fn do_puck_rink_forces(
 
             if normal.dot(&puck_force) > 0.0 {
                 limit_friction(&mut puck_force, &normal, friction);
-                apply_acceleration_to_object(&mut puck.body, &puck_force, &vertex);
+                apply_acceleration_to_object(&mut puck.body, &puck_force, &vertex, physics_config);
             }
         }
     }
@@ -1105,10 +1124,15 @@ fn collision_between_vertex_and_rink(
     collision_between_sphere_and_rink(vertex, 0.0, rink)
 }
 
-fn apply_acceleration_to_object(body: &mut HQMBody, change: &Vector3<f32>, point: &Point3<f32>) {
+fn apply_acceleration_to_object(
+    body: &mut HQMBody,
+    change: &Vector3<f32>,
+    point: &Point3<f32>,
+    physics_config: &HQMPhysicsConfiguration,
+) {
     let diff1 = point - body.pos;
     body.linear_velocity += change;
-    body.linear_velocity = limit_vector_length(&body.linear_velocity, 0.3);
+    body.linear_velocity = limit_vector_length(&body.linear_velocity, physics_config.puck_limit);
     let cross = change.cross(&diff1);
     body.angular_velocity += body.rot * (body.rot.transpose() * cross).component_mul(&body.rot_mul);
 }

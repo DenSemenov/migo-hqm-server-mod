@@ -201,6 +201,8 @@ async fn main() -> std::io::Result<()> {
             player_turning,
             player_shift_turning,
             shift_enabled: true,
+            puck_force: 0.75,
+            puck_limit: 0.3,
         };
 
         let file_appender = tracing_appender::rolling::daily("log", log_name);

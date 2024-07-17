@@ -43,3 +43,10 @@
 [2m2024-07-17T11:46:55.061959Z[0m [32m INFO[0m 7 (0) started game
 [2m2024-07-17T11:49:00.670992Z[0m [32m INFO[0m 7 (0) exited server
 [2m2024-07-17T11:49:00.671013Z[0m [32m INFO[0m Game 1 abandoned
+[2m2024-07-17T12:42:43.480501Z[0m [32m INFO[0m Server started
+[2m2024-07-17T12:42:43.481438Z[0m [32m INFO[0m Server listening at address 0.0.0.0:27585
+[2m2024-07-17T12:42:50.169967Z[0m [32m INFO[0m 7 (0) joined server from address 192.168.0.11:64291
+[2m2024-07-17T12:42:50.175964Z[0m [32m INFO[0m New game 1 started
+[2m2024-07-17T12:42:58.416288Z[0m [32m INFO[0m 7 (0) has joined team Red
+[2m2024-07-17T12:43:31.037288Z[0m [32m INFO[0m 7 (0) exited server
+[2m2024-07-17T12:43:31.055916Z[0m [32m INFO[0m Game 1 abandoned
