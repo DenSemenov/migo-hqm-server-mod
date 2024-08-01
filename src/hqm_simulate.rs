@@ -274,8 +274,10 @@ fn update_stick(
     );
 
     let placement_diff = stick_input - &player.stick_placement;
-    let placement_change = 0.0625 * placement_diff - 0.5 * player.stick_placement_delta;
-    // let placement_change = limit_vector_length2(&placement_change, 0.010);
+    let mut placement_change = 0.0625 * placement_diff - 0.5 * player.stick_placement_delta;
+    if player.stick_limit != 0.0 {
+        placement_change = limit_vector_length2(&placement_change, player.stick_limit);
+    }
 
     player.stick_placement_delta += placement_change;
     player.stick_placement += &player.stick_placement_delta;
@@ -361,7 +363,7 @@ fn update_stick(
         &mut player.body,
         &(-0.004 * stick_force),
         &intended_stick_position,
-        physics_config,
+        false,
     );
 
     if let Some((overlap, normal)) =
@@ -500,7 +502,7 @@ fn update_player(
             &mut player.body,
             &((0.9375 - 1.0) * force),
             &intended_collision_ball_pos,
-            physics_config,
+            false,
         );
     }
 
@@ -817,7 +819,7 @@ fn do_puck_net_forces(
 
         if normal.dot(&puck_force) > 0.0 {
             limit_friction(&mut puck_force, &normal, 0.5);
-            apply_acceleration_to_object(&mut puck.body, &puck_force, &overlap_pos, physics_config);
+            apply_acceleration_to_object(&mut puck.body, &puck_force, &overlap_pos, false);
             puck.body.linear_velocity *= 0.9875;
             puck.body.angular_velocity *= 0.95;
         }
@@ -848,7 +850,7 @@ fn do_puck_post_forces(
 
             if normal.dot(&puck_force) > 0.0 {
                 limit_friction(&mut puck_force, &normal, 0.2);
-                apply_acceleration_to_object(&mut puck.body, &puck_force, &p, physics_config);
+                apply_acceleration_to_object(&mut puck.body, &puck_force, &p, false);
             }
         }
     }
@@ -885,12 +887,8 @@ fn do_puck_stick_forces(
                 player.stick_velocity -= 0.25 * puck_force;
 
                 puck_force *= 0.75;
-                apply_acceleration_to_object(
-                    &mut puck.body,
-                    &puck_force,
-                    &puck_vertex,
-                    physics_config,
-                );
+                let is_limited = player.stick_limit > 0.01 || player.stick_limit == 0.0;
+                apply_acceleration_to_object(&mut puck.body, &puck_force, &puck_vertex, is_limited);
             }
         }
     }
@@ -919,7 +917,7 @@ fn do_puck_rink_forces(
 
             if normal.dot(&puck_force) > 0.0 {
                 limit_friction(&mut puck_force, &normal, friction);
-                apply_acceleration_to_object(&mut puck.body, &puck_force, &vertex, physics_config);
+                apply_acceleration_to_object(&mut puck.body, &puck_force, &vertex, false);
             }
         }
     }
@@ -1128,11 +1126,13 @@ fn apply_acceleration_to_object(
     body: &mut HQMBody,
     change: &Vector3<f32>,
     point: &Point3<f32>,
-    physics_config: &HQMPhysicsConfiguration,
+    is_limited: bool,
 ) {
     let diff1 = point - body.pos;
     body.linear_velocity += change;
-    body.linear_velocity = limit_vector_length(&body.linear_velocity, physics_config.puck_limit);
+    if is_limited {
+        body.linear_velocity = limit_vector_length(&body.linear_velocity, 0.2665);
+    }
     let cross = change.cross(&diff1);
     body.angular_velocity += body.rot * (body.rot.transpose() * cross).component_mul(&body.rot_mul);
 }

@@ -675,6 +675,24 @@ impl HQMServer {
             "t" => {
                 self.add_user_team_message(arg, player_index);
             }
+            "lm" => {
+                if let Ok(limit) = arg.parse::<f32>() {
+                    self.set_stick_limit(limit, player_index);
+                } else {
+                    match arg {
+                        "old" => {
+                            self.set_stick_limit(0.0088888891, player_index);
+                        }
+                        "new" => {
+                            self.set_stick_limit(0.01, player_index);
+                        }
+                        "no" => {
+                            self.set_stick_limit(0.0, player_index);
+                        }
+                        _ => {}
+                    }
+                }
+            }
             _ => behaviour.handle_command(self, command, arg, player_index),
         }
     }
@@ -952,7 +970,8 @@ impl HQMServer {
         if let Some(player) = self.players.get_mut(player_index) {
             if let Some((object_index, _)) = player.object {
                 if let Some(skater) = self.world.objects.get_skater_mut(object_index) {
-                    let mut new_skater = HQMSkater::new(pos, rot, player.hand, player.mass);
+                    let mut new_skater =
+                        HQMSkater::new(pos, rot, player.hand, player.mass, player.stick_limit);
                     if keep_stick_position {
                         let stick_pos_diff = &skater.stick_pos - &skater.body.pos;
                         let rot_change = skater.body.rot.rotation_to(&rot);
@@ -969,10 +988,13 @@ impl HQMServer {
                     self.messages.add_global_message(update, true, true);
                 }
             } else {
-                if let Some(skater) =
-                    self.world
-                        .create_player_object(pos, rot, player.hand, player.mass)
-                {
+                if let Some(skater) = self.world.create_player_object(
+                    pos,
+                    rot,
+                    player.hand,
+                    player.mass,
+                    player.stick_limit,
+                ) {
                     if let HQMServerPlayerData::NetworkPlayer { data } = &mut player.data {
                         data.view_player_index = player_index;
                     }
@@ -986,6 +1008,33 @@ impl HQMServer {
             }
         }
         None
+    }
+
+    fn set_stick_limit(&mut self, limit: f32, player_index: HQMServerPlayerIndex) {
+        if let Some(player) = self.players.get_mut(player_index) {
+            player.stick_limit = limit;
+
+            if let Some((object_index, _)) = player.object {
+                if let Some(skater) = self.world.objects.get_skater_mut(object_index) {
+                    skater.stick_limit = limit;
+                }
+            }
+
+            let mut limit_text = format!("{}", limit);
+
+            if limit == 0.0088888891 {
+                limit_text = format!("old (0.0088888891)");
+            } else if limit == 0.01 {
+                limit_text = format!("new (0.01)");
+            } else if limit == 0.0 {
+                limit_text = format!("no");
+            }
+
+            let msg = format!("Stick speed limit is set to {}", limit_text);
+
+            self.messages
+                .add_directed_server_chat_message(msg, player_index);
+        }
     }
 
     fn add_user_team_message(&mut self, message: &str, sender_index: HQMServerPlayerIndex) {
@@ -1677,6 +1726,7 @@ pub struct HQMServerPlayer {
     pub hand: HQMSkaterHand,
     pub mass: f32,
     pub input: HQMPlayerInput,
+    pub stick_limit: f32,
 }
 
 impl HQMServerPlayer {
@@ -1711,6 +1761,7 @@ impl HQMServerPlayer {
             is_muted: HQMMuteStatus::NotMuted,
             hand: HQMSkaterHand::Right,
             mass: 1.0,
+            stick_limit: 0.010,
         }
     }
 

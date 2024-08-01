@@ -1,0 +1,48 @@
+[2m2024-08-01T14:42:45.967432Z[0m [32m INFO[0m Server started
+[2m2024-08-01T14:42:45.968626Z[0m [32m INFO[0m Server listening at address 0.0.0.0:27585
+[2m2024-08-01T14:42:48.915571Z[0m [32m INFO[0m 7 (0) joined server from address 192.168.0.199:59875
+[2m2024-08-01T14:42:48.924461Z[0m [32m INFO[0m New game 1 started
+[2m2024-08-01T14:42:49.566428Z[0m [32m INFO[0m 7 (0) has joined team Red
+[2m2024-08-01T14:50:45.496126Z[0m [32m INFO[0m Server started
+[2m2024-08-01T14:50:45.497114Z[0m [32m INFO[0m Server listening at address 0.0.0.0:27585
+[2m2024-08-01T14:50:46.986305Z[0m [32m INFO[0m 7 (0) joined server from address 192.168.0.199:61672
+[2m2024-08-01T14:50:46.994059Z[0m [32m INFO[0m New game 1 started
+[2m2024-08-01T14:50:52.263603Z[0m [32m INFO[0m 7 (0) has joined team Red
+[2m2024-08-01T14:54:41.622265Z[0m [32m INFO[0m Server started
+[2m2024-08-01T14:54:41.623588Z[0m [32m INFO[0m Server listening at address 0.0.0.0:27585
+[2m2024-08-01T14:54:44.842219Z[0m [32m INFO[0m 7 (0) joined server from address 192.168.0.199:56601
+[2m2024-08-01T14:54:44.851091Z[0m [32m INFO[0m New game 1 started
+[2m2024-08-01T14:54:46.941597Z[0m [32m INFO[0m 7 (0) has joined team Red
+[2m2024-08-01T14:57:28.845660Z[0m [32m INFO[0m Server started
+[2m2024-08-01T14:57:28.846757Z[0m [32m INFO[0m Server listening at address 0.0.0.0:27585
+[2m2024-08-01T14:57:30.809296Z[0m [32m INFO[0m 7 (0) joined server from address 192.168.0.199:60747
+[2m2024-08-01T14:57:30.827068Z[0m [32m INFO[0m New game 1 started
+[2m2024-08-01T14:57:32.407445Z[0m [32m INFO[0m 7 (0) has joined team Red
+[2m2024-08-01T14:58:07.188399Z[0m [32m INFO[0m Server started
+[2m2024-08-01T14:58:07.189884Z[0m [32m INFO[0m Server listening at address 0.0.0.0:27585
+[2m2024-08-01T14:58:13.078461Z[0m [32m INFO[0m Server started
+[2m2024-08-01T14:58:13.079493Z[0m [32m INFO[0m Server listening at address 0.0.0.0:27585
+[2m2024-08-01T14:58:16.190010Z[0m [32m INFO[0m Server started
+[2m2024-08-01T14:58:16.191041Z[0m [32m INFO[0m Server listening at address 0.0.0.0:27585
+[2m2024-08-01T14:58:20.571469Z[0m [32m INFO[0m 7 (0) joined server from address 192.168.0.199:52205
+[2m2024-08-01T14:58:20.586957Z[0m [32m INFO[0m New game 1 started
+[2m2024-08-01T14:58:20.916925Z[0m [32m INFO[0m 7 (0) has joined team Red
+[2m2024-08-01T14:58:46.906023Z[0m [32m INFO[0m 7 (0) exited server
+[2m2024-08-01T14:58:46.913381Z[0m [32m INFO[0m Game 1 abandoned
+[2m2024-08-01T15:05:26.561523Z[0m [32m INFO[0m Server started
+[2m2024-08-01T15:05:26.562655Z[0m [32m INFO[0m Server listening at address 0.0.0.0:27585
+[2m2024-08-01T15:05:27.906982Z[0m [32m INFO[0m 7 (0) joined server from address 192.168.0.199:62730
+[2m2024-08-01T15:05:27.922305Z[0m [32m INFO[0m New game 1 started
+[2m2024-08-01T15:05:28.328610Z[0m [32m INFO[0m 7 (0) has joined team Red
+[2m2024-08-01T15:05:31.641748Z[0m [32m INFO[0m 7 (0) tried to become admin, entered wrong password
+[2m2024-08-01T15:05:33.972253Z[0m [32m INFO[0m 7 (0) is now admin
+[2m2024-08-01T15:05:36.611973Z[0m [32m INFO[0m 7 (0) started game
+[2m2024-08-01T15:07:25.684944Z[0m [32m INFO[0m Server started
+[2m2024-08-01T15:07:25.686244Z[0m [32m INFO[0m Server listening at address 0.0.0.0:27585
+[2m2024-08-01T15:07:29.855736Z[0m [32m INFO[0m 7 (0) joined server from address 192.168.0.199:53114
+[2m2024-08-01T15:07:29.872649Z[0m [32m INFO[0m New game 1 started
+[2m2024-08-01T15:07:30.222700Z[0m [32m INFO[0m 7 (0) has joined team Red
+[2m2024-08-01T15:07:44.152965Z[0m [32m INFO[0m 7 (0) is now admin
+[2m2024-08-01T15:07:45.663289Z[0m [32m INFO[0m 7 (0) started game
+[2m2024-08-01T15:09:14.272984Z[0m [32m INFO[0m 7 (0) exited server
+[2m2024-08-01T15:09:14.273027Z[0m [32m INFO[0m Game 1 abandoned
