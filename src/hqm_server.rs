@@ -1151,7 +1151,7 @@ impl HQMServer {
                     if skater.stick_limit == 0.0 || skater.stick_limit > 0.01 {
                         if let Some(puck) = self.world.objects.get_puck_mut(e.1) {
                             puck.body.linear_velocity =
-                                Self::limit_vector_length(puck.body.linear_velocity, 0.2665);
+                                Self::limit_vector_length(puck.body.linear_velocity, 0.2);
                         }
                     }
                 }
