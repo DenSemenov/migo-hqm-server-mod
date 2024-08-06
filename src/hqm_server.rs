@@ -10,9 +10,10 @@ use std::sync::Arc;
 use std::time::{Duration, Instant};
 
 pub use crate::hqm_behaviour::HQMServerBehaviour;
+use crate::hqm_simulate::HQMSimulationEvent;
 use bytes::{BufMut, BytesMut};
 use chrono::{DateTime, Utc};
-use nalgebra::{Point3, Rotation3};
+use nalgebra::{Point3, Rotation3, Vector3};
 use std::fmt;
 use tokio::fs::File;
 use tokio::io::AsyncWriteExt;
@@ -304,6 +305,8 @@ pub struct HQMServer {
     saved_history: VecDeque<ReplayTick>,
 
     pub history_length: usize,
+
+    saved_events: VecDeque<(u32, VecDeque<(HQMObjectIndex, HQMObjectIndex)>)>,
 }
 
 impl HQMServer {
@@ -1123,6 +1126,37 @@ impl HQMServer {
         }
 
         let events = self.world.simulate_step();
+        let temp_events = events.clone();
+
+        self.saved_events.truncate(5 - 1);
+
+        let mut step_events = VecDeque::new();
+
+        for event in temp_events {
+            match event {
+                HQMSimulationEvent::PuckTouch { player, puck, .. } => {
+                    self.saved_events.clear();
+                    step_events.push_front((player, puck));
+                }
+                _ => {}
+            }
+        }
+
+        self.saved_events.push_front((self.game_step, step_events));
+
+        if self.saved_events.len() == 5 {
+            let events_five_frame_ago = &self.saved_events[4].1;
+            for e in events_five_frame_ago {
+                if let Some(skater) = self.world.objects.get_skater(e.0) {
+                    if skater.stick_limit == 0.0 || skater.stick_limit > 0.01 {
+                        if let Some(puck) = self.world.objects.get_puck_mut(e.1) {
+                            puck.body.linear_velocity =
+                                Self::limit_vector_length(puck.body.linear_velocity, 0.2665);
+                        }
+                    }
+                }
+            }
+        }
 
         let packets = hqm_parse::get_packets(&self.world.objects.objects);
 
@@ -1149,6 +1183,15 @@ impl HQMServer {
         if self.config.replays_enabled != ReplayEnabled::Off && behaviour.save_replay_data(self) {
             self.write_replay();
         }
+    }
+
+    fn limit_vector_length(v: Vector3<f32>, max_len: f32) -> Vector3<f32> {
+        let norm = v.norm();
+        let mut res = v.clone_owned();
+        if norm > max_len {
+            res *= max_len / norm;
+        }
+        res
     }
 
     fn remove_inactive_players<B: HQMServerBehaviour>(&mut self, behaviour: &mut B) {
@@ -1487,6 +1530,7 @@ pub async fn run_server<B: HQMServerBehaviour>(
         history_length: 0,
         game_step: u32::MAX,
         start_time: Default::default(),
+        saved_events: VecDeque::with_capacity(5),
     };
     info!("Server started");
 
